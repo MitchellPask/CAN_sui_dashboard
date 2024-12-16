@@ -45,7 +45,7 @@ Papa.parse(SUI_MOR_MAP_CSV, {
         const rows = csvData.slice(1);
 
         const provinceIndex = headers.indexOf("PT_EN");
-        const rateIndex = headers.indexOf("Number");
+        const rateIndex = headers.indexOf("Rate_per_100000");
 
         highchartsMapData = rows.map(row => {
             const province = row[provinceIndex];
@@ -250,38 +250,21 @@ var SUI_MOR_AGE_SEX_CSV =
     fetch('https://code.highcharts.com/mapdata/countries/ca/ca-all.topo.json')
         .then(response => response.json())
         .then(mapData => {
-            // dummy data for the heatmap
-            const data = [
-                { "hc-key": "ca-bc", "value": 10 }, // British Columbia
-                { "hc-key": "ca-ab", "value": 15 }, // Alberta
-                { "hc-key": "ca-sk", "value": 20 }, // Saskatchewan
-                { "hc-key": "ca-mb", "value": 25 }, // Manitoba
-                { "hc-key": "ca-on", "value": 30 }, // Ontario
-                { "hc-key": "ca-qc", "value": 35 }, // Quebec
-                { "hc-key": "ca-nb", "value": 40 }, // New Brunswick
-                { "hc-key": "ca-ns", "value": 45 }, // Nova Scotia
-                { "hc-key": "ca-pe", "value": 50 }, // PEI
-                { "hc-key": "ca-yt", "value": 55 }, // Yukon
-                { "hc-key": "ca-nt", "value": 60 }, // NWT
-                { "hc-key": "ca-nl", "value": 65 }, // Newfoundland and Labrador
-                { "hc-key": "ca-nu", "value": 70 }  // Nunavut
-            ];
-
             Highcharts.mapChart('map-chart', {
                 chart: {
                     map: mapData
                 },
                 title: {
-                    text: 'Canada Heat Map by Province'
+                    text: '2020, Canada, Age-Standardized Suicide Mortality Per 100,000 People'
                 },
                 colorAxis: {
                     min: 0,
-                    minColor: '#E6E7E8',
+                    minColor: '#bce8b5',
                     maxColor: '#005645'
                 },
                 series: [{
                     data: highchartsMapData,
-                    name: 'Heat Map Data',
+                    name: 'Suicide Mortality Per 100,000 People',
                     states: {
                         hover: {
                             color: '#a4edba'
