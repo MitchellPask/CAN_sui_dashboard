@@ -36,7 +36,10 @@ const provinceKey = {
     "Northwest Territories": "ca-nt",
     "Nunavut": "ca-nu"
 };
+
+// formatted data for the map chart
 var highchartsMapData = []
+
 Papa.parse(SUI_MOR_MAP_CSV, {
     complete: function(results) {
         const csvData = results.data;
@@ -54,7 +57,7 @@ Papa.parse(SUI_MOR_MAP_CSV, {
             return key ? { "hc-key": key, "value": rate} : null;
         }).filter(Boolean);
 
-        console.log("map data: ", highchartsMapData)
+        // console.log("map data: ", highchartsMapData)
     }
 });
 
@@ -78,13 +81,49 @@ var SUI_MOR_AGE_SEX_CSV =
 2020,Canada,Canada,50 to 64,Females,263,6.7,"3,912,519"
 2020,Canada,Canada,65 to 79,Females,116,4.3,"2,698,754"
 2020,Canada,Canada,80 and older,Females,40,4,"993,485"`;
-    Papa.parse(SUI_MOR_AGE_SEX_CSV, {
-        complete: function(results) {
-            // console.log(results);
-        }
-    });
 
-    var SUI_MOR_OT_CSV = 
+// formatted data for the column chart
+var highchartsAgeSexData = [];
+var maleRateData = [];
+var femaleRateData = [];
+// formatted data for the donut chart
+var maleNumberData = [];
+var femaleNumberData = [];
+
+Papa.parse(SUI_MOR_AGE_SEX_CSV, {
+    complete: function(results) {
+        const csvData = results.data;
+        
+        const headers = csvData[0];
+        const rows = csvData.slice(1);
+
+        const sexIndex = headers.indexOf("Sex");
+        const numberIndex = headers.indexOf("Number");
+        const rateIndex = headers.indexOf("Rate_per_100000");
+        
+        highchartsAgeSexData = rows.map(row => {
+            const sex = row[sexIndex];
+            const number = parseFloat(row[numberIndex]);
+            const rate = parseFloat(row[rateIndex]);
+            return { "sex": sex, "number": number, "rate": rate };
+        });
+
+        highchartsAgeSexData.forEach(element => {
+            if (element.sex === "Males") {
+                maleNumberData.push(element.number);
+                maleRateData.push(element.rate);
+            } 
+            if (element.sex === "Females") {
+                femaleNumberData.push(element.number);
+                femaleRateData.push(element.rate);
+            }
+        });
+
+        // console.log("age/sex data: ", highchartsAgeSexData)
+    }
+});
+
+var SUI_MOR_OT_CSV = 
 `Year,PT_EN,PT_FR,Sex,Number,Rate_per_100000
 2006,Canada,Canada,Both sexes,3512,10.8
 2007,Canada,Canada,Both sexes,3611,11
@@ -131,11 +170,53 @@ var SUI_MOR_AGE_SEX_CSV =
 2018,Canada,Canada,Females,1132,6.2
 2019,Canada,Canada,Females,1100,5.9
 2020,Canada,Canada,Females,1040,5.5`;
-    Papa.parse(SUI_MOR_OT_CSV, {
-        complete: function(results) {
-            // console.log(results);
-        }
-    });
+
+var highchartsYearAgeSexData = [];
+var lineYearData = [];
+var donutMaleNumberData = [];
+var lineMaleRateData = [];
+var donutFemaleNumberData = [];
+var lineFemaleRateData = [];
+var lineBothRateData = [];
+
+Papa.parse(SUI_MOR_OT_CSV, {
+    complete: function(results) {
+        const csvData = results.data;
+        
+        const headers = csvData[0];
+        const rows = csvData.slice(1);
+
+        const yearIndex = headers.indexOf("Year");
+        const sexIndex = headers.indexOf("Sex");
+        const numberIndex = headers.indexOf("Number");
+        const rateIndex = headers.indexOf("Rate_per_100000");
+        
+        highchartsYearAgeSexData = rows.map(row => {
+            const year = row[yearIndex];
+            const sex = row[sexIndex];
+            const number = parseFloat(row[numberIndex]);
+            const rate = parseFloat(row[rateIndex]);
+            return { "year": year, "sex": sex, "number": number, "rate": rate };
+        });
+
+        highchartsYearAgeSexData.forEach(element => {
+            if (element.sex === "Males") {
+                donutMaleNumberData.push(element.number);
+                lineMaleRateData.push(element.rate);
+            } 
+            if (element.sex === "Females") {
+                donutFemaleNumberData.push(element.number);
+                lineFemaleRateData.push(element.rate);
+            }
+            if (element.sex === "Both sexes") {
+                lineBothRateData.push(element.rate);
+                lineYearData.push(element.year);
+            }
+        });
+
+        // console.log(highchartsYearAgeSexData);
+    }
+});
 
 
 
@@ -145,7 +226,7 @@ var SUI_MOR_AGE_SEX_CSV =
             type: 'pie'
         },
         title: {
-            text: 'Dummy Donut Chart'
+            text: '2020, Total Suicide Mortality by Sex'
         },
         plotOptions: {
             pie: {
@@ -157,10 +238,10 @@ var SUI_MOR_AGE_SEX_CSV =
             }
         },
         series: [{
-            name: 'Categories',
+            name: 'Amount',
             data: [
-                { name: 'Category 1', y: 60 },
-                { name: 'Category 2', y: 40 }
+                { name: 'Male', y: maleNumberData.reduce((a, b) => a + b, 0) },
+                { name: 'Female', y: femaleNumberData.reduce((a, b) => a + b, 0) }
             ]
         }]
     });
@@ -172,7 +253,7 @@ var SUI_MOR_AGE_SEX_CSV =
             type: 'pie'
         },
         title: {
-            text: 'Dummy Donut Chart'
+            text: '2006-2020, Total Suicide Mortality by Sex'
         },
         plotOptions: {
             pie: {
@@ -184,10 +265,10 @@ var SUI_MOR_AGE_SEX_CSV =
             }
         },
         series: [{
-            name: 'Categories',
+            name: 'Amount',
             data: [
-                { name: 'Category 1', y: 75 },
-                { name: 'Category 2', y: 25 }
+                { name: 'Male', y: donutMaleNumberData.reduce((a, b) => a + b, 0) },
+                { name: 'Female', y: donutFemaleNumberData.reduce((a, b) => a + b, 0) }
             ]
         }]
     });
@@ -195,23 +276,20 @@ var SUI_MOR_AGE_SEX_CSV =
     // ====================== Line Chart ========================
     Highcharts.chart('line-chart', {
         title: {
-            text: 'Dummy Line Chart'
+            text: '2006-2020, Age-Standardized Suicide Mortality Rates by Sex'
         },
         xAxis: {
-            categories: [
-                'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
-                'Oct', 'Nov', 'Dec'
-            ]
+            categories: lineYearData
         },
         series: [{
-            data: [1, 2, 3, 4, null, 6, 7, null, 9],
-            name: 'Right'
+            data: lineMaleRateData,
+            name: 'Male'
         }, {
-            data: [5, 6, 7, 8, null, 10, 11, null, 13],
-            name: 'Center'
+            data: lineFemaleRateData,
+            name: 'Female'
         }, {
-            data: [9, 10, 11, 12, null, 14, 15, null, 17],
-            name: 'Left'
+            data: lineBothRateData,
+            name: 'Both Sexes'
         }]
 
     });
@@ -223,24 +301,34 @@ var SUI_MOR_AGE_SEX_CSV =
             type: 'column'
         },
         title: {
-            text: 'Dummy Column Chart'
+            text: '2020, Age and Sex Specific Suicide Mortality 100,000 people'
         },
         xAxis: {
-            categories: ['Section 1', 'Section 2', 'Section 3']
+            title: {
+                text: 'Age group'
+            },
+            categories: [
+                '10 to 19', 
+                '20 to 34', 
+                '35 to 49', 
+                '50 to 64', 
+                '65 to 79', 
+                '80 and older'
+            ]
         },
         yAxis: {
             title: {
-                text: 'Values'
+                text: 'Age-specific rate per 100,000 people'
             }
         },
         series: [
             {
-                name: 'Series 1',
-                data: [5, 7, 9]
+                name: 'Males',
+                data: maleRateData
             },
             {
-                name: 'Series 2',
-                data: [3, 4, 8]
+                name: 'Females',
+                data: femaleRateData
             }
         ]
     });
@@ -255,7 +343,7 @@ var SUI_MOR_AGE_SEX_CSV =
                     map: mapData
                 },
                 title: {
-                    text: '2020, Canada, Age-Standardized Suicide Mortality Per 100,000 People'
+                    text: '2020, Age-Standardized Suicide Mortality Per 100,000 People'
                 },
                 colorAxis: {
                     min: 0,
