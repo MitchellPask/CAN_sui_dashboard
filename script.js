@@ -276,7 +276,7 @@ Papa.parse(SUI_MOR_OT_CSV, {
     // ====================== Line Chart ========================
     Highcharts.chart('line-chart', {
         title: {
-            text: '2006-2020, Age-Standardized Suicide Mortality Rates by Sex'
+            text: '2006-2020, Age-Standardized Suicide Mortality Rates Per 100,000 by Sex'
         },
         xAxis: {
             categories: lineYearData
