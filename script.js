@@ -301,7 +301,7 @@ Papa.parse(SUI_MOR_OT_CSV, {
             type: 'column'
         },
         title: {
-            text: '2020, Age and Sex Specific Suicide Mortality 100,000 people'
+            text: '2020, Suicide Mortality Per 100,000 People by Age and Sex'
         },
         xAxis: {
             title: {
